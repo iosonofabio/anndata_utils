@@ -18,7 +18,3 @@ echo 'Running tests...'
 # PYTHONPATH=$(pwd)/build/lib:PYTHONPATH pytest -rxXs test
 
 ${PYTEST} "test"
-
-echo 'done!'
-
-
