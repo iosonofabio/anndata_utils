@@ -63,6 +63,48 @@ def split(adata, columns, axis='obs'):
     return d
 
 
+def average(adata, columns, axis='obs', log=False):
+    '''Average expression by metadata column
+
+    Args:
+        adata (AnnData): The object to split
+        columns (str or list): column(s) of metadata table to split by
+        axis (str): 'obs' (default) or 'var'
+        log (bool): If True, log10 counts before averaging
+
+    Returns:
+        pandas DataFrame with rows equal to the non-integrated axis names
+        and columns equal to the keys of the AnnData split.
+
+    '''
+    adatad = split(adata, columns, axis=axis)
+
+    if axis == 'var':
+        iax = 1
+        index = adata.obs_names
+    else:
+        iax = 0
+        index = adata.var_names
+
+    expd = {}
+    for key, adatai in adatad.items():
+        matrix = adatai.X
+        if log:
+            matrix = matrix.copy()
+            matrix.data = np.log10(matrix.data)
+        exp = np.asarray(adatai.X.mean(axis=iax))[0]
+        expd[key] = exp
+    expd = pd.DataFrame(expd, index=index)
+    expd.name = 'Average expression'
+
+    if isinstance(columns, str):
+        expd.columns.name = columns
+    else:
+        expd.columns.names = columns
+
+    return expd
+
+
 def expressing_fractions(adata, columns, axis='obs', greater_than=0):
     '''Fraction of expressors by metadata column
 
@@ -92,6 +134,12 @@ def expressing_fractions(adata, columns, axis='obs', greater_than=0):
         fr = np.asarray((adatai.X > greater_than).mean(axis=iax))[0]
         fracd[key] = fr
     fracd = pd.DataFrame(fracd, index=index)
+    fracd.name = 'Fraction of expressing cells'
+
+    if isinstance(columns, str):
+        fracd.columns.name = columns
+    else:
+        fracd.columns.names = columns
 
     return fracd
 
