@@ -91,8 +91,8 @@ def average(adata, columns, axis='obs', log=False):
         matrix = adatai.X
         if log:
             matrix = matrix.copy()
-            matrix.data = np.log10(matrix.data)
-        exp = np.asarray(adatai.X.mean(axis=iax))[0]
+            matrix.data = np.log10(matrix.data + 0.1)
+        exp = np.asarray(matrix.mean(axis=iax))[0]
         expd[key] = exp
     expd = pd.DataFrame(expd, index=index)
     expd.name = 'Average expression'
