@@ -70,7 +70,9 @@ def average(adata, columns, axis='obs', log=False):
         adata (AnnData): The object to split
         columns (str or list): column(s) of metadata table to split by
         axis (str): 'obs' (default) or 'var'
-        log (bool): If True, log10 counts before averaging
+        log (bool): If True, log (x + 0.1) counts before averaging and then
+            exponentiate at the end
+
 
     Returns:
         pandas DataFrame with rows equal to the non-integrated axis names
@@ -91,8 +93,10 @@ def average(adata, columns, axis='obs', log=False):
         matrix = adatai.X
         if log:
             matrix = matrix.copy()
-            matrix.data = np.log10(matrix.data + 0.1)
+            matrix.data = np.log(matrix.data + 0.1)
         exp = np.asarray(matrix.mean(axis=iax))[0]
+        if log:
+            exp = np.exp(exp)
         expd[key] = exp
     expd = pd.DataFrame(expd, index=index)
     expd.name = 'Average expression'
